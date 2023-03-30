@@ -14,10 +14,10 @@ export function ListOfMovies ({ movies }) {
   )
 }
 export function NotMovies () {
-  <p>Cannot find the movie searched</p>
+  return <p>Cannot find the movie searched</p>
 }
-export default function Movies ({ movies }) {
-  return movies?.length > 0
-    ? <ListOfMovies movies={movies} />
-    : <NotMovies />
+export default function Movies ({ movies, loading }) {
+  if (loading) return <p>Loading...</p>
+  else if (movies?.length > 0) return <ListOfMovies movies={movies} />
+  else return <NotMovies />
 }

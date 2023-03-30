@@ -1,19 +1,29 @@
+import { useState } from 'react'
 import './App.css'
 import Movies from './components/Movies'
+import useDebounce from './hooks/useDebounce'
 import { useMovies } from './hooks/useMovies'
 import useSearch from './hooks/useSearch'
 
 function App () {
-  const movies = useMovies()
+  const [sort, setSort] = useState(false)
   const { search, setSearch, error } = useSearch()
+  const { movies, getMovies, loading } = useMovies({ search, sort })
+  const getMoviesDebounce = useDebounce({ callback: getMovies, time: 300 })
 
   const handlerSubmit = (e) => {
     e.preventDefault()
+    getMovies({ search })
   }
   const handlerChange = (e) => {
-    if (!e.target.value.startsWith(' ')) {
-      setSearch(e.target.value)
+    const searchValue = e.target.value
+    if (!searchValue.startsWith(' ')) {
+      setSearch(searchValue)
+      getMoviesDebounce({ search: searchValue })
     }
+  }
+  const handlerSort = () => {
+    setSort(sort => !sort)
   }
 
   return (
@@ -21,13 +31,19 @@ function App () {
       <header>
         <h1>Movie searcher</h1>
         <form onSubmit={handlerSubmit}>
-          <input value={search} onChange={handlerChange} placeholder='Avengers, Shrek, Avatar...' />
-          <button type='submit'>Search</button>
+          <div>
+            <input value={search} onChange={handlerChange} placeholder='Avengers, Shrek, Avatar...' />
+            <button type='submit'>Search</button>
+          </div>
+          <label>
+            <input type='checkbox' onChange={handlerSort} checked={sort} />
+            Sort by title
+          </label>
         </form>
-        <sub style={{ color: 'red' }}>{error}</sub>
+        <sub>{error}</sub>
       </header>
       <main>
-        <Movies movies={movies} />
+        <Movies movies={movies} loading={loading} />
       </main>
     </div>
   )

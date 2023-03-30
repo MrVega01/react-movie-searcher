@@ -10,11 +10,27 @@
 }
 .App form{
   display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.App form input{
+.App form div{
+  display: flex;
+}
+.App form div input{
   width: 100%;
 }
+.App form label{
+  display: flex;
+  width: fit-content;
+}
+.App sub{
+  display: block;
+  color: red;
+  text-align: center;
+  margin-top: 12px;
+}
 .App main{
+  text-align: center;
   width: 100%;
 }
 .ListOfMovies{

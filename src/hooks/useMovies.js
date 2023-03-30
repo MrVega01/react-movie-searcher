@@ -1,18 +1,27 @@
-import results from '../mocks/with-results.json'
-import noResults from '../mocks/no-results.json'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { getMoviesBySearch } from '../services/movies'
 
-const API_KEY = 'fe6d5045'
-const API_URL = `https://www.omdbapi.com/?s=${''}&apikey=${API_KEY}`
+export function useMovies ({ search, sort }) {
+  const [movies, setMovies] = useState([])
+  const [loading, setLoading] = useState(false)
+  const previousSearch = useRef(search)
 
-export function useMovies () {
-  const movies = results?.Search
+  const getMovies = useCallback(({ search }) => {
+    if (search === previousSearch.current) return
+    setLoading(true)
+    getMoviesBySearch({ search }).then(movies => {
+      setMovies(movies)
+      previousSearch.current = search
+      setLoading(false)
+    })
+  }, [])
+  const sortMovies = useMemo(() => {
+    return sort ? [...movies].sort((a, b) => a.title.localeCompare(b.title)) : movies
+  }, [sort, movies])
 
-  const mappedMovies = movies.map(movie => ({
-    id: movie.imdbID,
-    title: movie.Title,
-    year: movie.Year,
-    poster: movie.Poster
-  }))
-
-  return mappedMovies
+  return {
+    movies: sortMovies,
+    getMovies,
+    loading
+  }
 }
